@@ -1,0 +1,65 @@
+# -----------------------------------------------------------------
+#  newsbot configuration
+#  Copy this file as config.yml and tweak anytime—newsbot reloads
+# -----------------------------------------------------------------
+def fetch_and_notify():
+    # …
+
+async def loop():
+    await init_db()
+    raw = open(CONFIG_FILE).read()
+    print("––––– RAW CONFIG.YML –––––")
+    print(raw)
+    cfg = yaml.safe_load(raw)
+    print("parsed cfg:", cfg)
+    # now the scheduling line:
+    schedule.every(cfg["notify_every"]).seconds.do(fetch_and_notify)
+    # …
+
+# 1️⃣ RSS/Atom feeds to poll (add or remove freely)
+feeds:
+  # --- Finance & markets ------------
+  - https://feeds.finance.yahoo.com/rss/2.0/headline?s=^GSPC&region=US&lang=en-US
+  - https://www.wsj.com/xml/rss/3_7014.xml          # WSJ Markets
+  - https://www.cnbc.com/id/100003114/device/rss/rss.html
+
+  # --- War / geopolitics ------------
+  - https://www.reuters.com/rssFeed/warAndConflictNews
+  - https://www.aljazeera.com/xml/rss/all.xml
+  - https://feeds.bbci.co.uk/neAws/world/rss.xml
+
+  # --- Tech (example extra category) ------------
+  - https://www.theverge.com/rss/index.xml
+  - https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+
+# 2️⃣ Keyword filters for zero‑shot classification
+#    Keys become hashtags/labels (e.g. #finance).  Values = trigger words/phrases.
+filters:
+  finance:
+    - "earnings"
+    - "ipo"
+    - "federal reserve"
+    - "bond"
+    - "inflation"
+
+  war:
+    - "invasion"
+    - "missile"
+    - "airstrike"
+    - "ceasefire"
+    - "troops"
+
+  tech:
+    - "ai"
+    - "semiconductor"
+    - "nvidia"
+    - "quantum"
+    - "open-source"
+
+# 3️⃣ Polling / summariser knobs
+notify_every: 180      # seconds between polls   (≈ 3 min)
+top_k: 3               # summary keeps this many sentences (2‑4 is sweet spot)
+
+# 4️⃣ Advanced (optional) -----------------------------------------
+# similarity_threshold: 0.82   # tweak if you see duplicates
+# max_history_vectors: 60      # semantic dedupe memory window
